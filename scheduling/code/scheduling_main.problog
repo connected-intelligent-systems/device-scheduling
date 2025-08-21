@@ -1,0 +1,298 @@
+%-------------------------------File Description-------------------------------
+% Computes the best schedules for given applications.
+%------------------------------------------------------------------------------
+
+%------------------------------------------Imports----------------------------------------------
+
+%.........Problog Libraries...........
+:- use_module(library(lists)).
+:- use_module(library(aggregate)).
+
+
+
+%.........Python Functions............
+:- use_module('../python_functions/problog_functions.py').
+:- use_module('../python_functions/problog_functions_time.py').
+:- use_module('..\python_functions\problog_functions_io.py').
+
+
+
+%.........Code Files..................
+:- use_module('./utils.problog').
+:- use_module('./mask_operations.problog').
+:- use_module('./possible_schedules_computation.problog').
+:- use_module('./compute_schedule_quality.problog').
+
+
+
+
+%.........Data Files.................
+%:- use_module('../data/scheduling_parameters.problog').
+%:- use_module('../data/user_input.problog').
+:- use_module('../data/general_scheduling_parameters.problog').
+:- use_module('../data/current_scheduling_parameters.problog').
+:- use_module('../data/schedulable_time_frames.problog').
+:- use_module('../data/abstraction_parameters.problog').
+:- use_module('../data/scheduling_results.problog').
+
+
+
+
+% weekdays
+weekdays([monday, tuesday, wednesday, thursday, friday, saturday, sunday]).
+
+
+
+
+%----------------------------------Basic Scheduling------------------------------------------------
+
+% Returns all application activations Act.
+get_activation(Act) :- al(Apps), timepoints(T), get_possible_device_schedules(Apps,T,SP),
+ write_and_get('scheduling_code/data/activations.problog', activation, SP, Act).
+
+
+%schedule(Apps, Act, R):- poss1(Act), al(Apps), prod(Prod), saved_money(Apps, Act, Prod, R).
+%schedule(Act, R):-  al(Apps), prod(Prod), get_activation(Act), saved_money(Apps, Act, Prod, R).
+
+
+% Schedules the given application schedule Act and returns the amount of money saved R by using this schedule.
+schedule(Act, R):- al(Apps), prod(Prod), saved_money(Apps, Act, Prod, R).
+
+
+% Schedules all possible applications schedules and returns the money saved R of them.
+schedule_all_activations(Act, R):- get_activation(Act), schedule(Act,R).
+
+
+% Returns the maximum amount of saved money of all possible application activations.
+max_money_saved(max<MoneySaved>) :- schedule_all_activations(Act, MoneySaved).
+
+
+% Returns the schedules S with the most money saved R.
+best_schedule(S, R) :- schedule_all_activations(S, MoneySaved), max_money_saved(R), MoneySaved = R.
+
+
+
+
+%----------------------------------Iterative Application Scheduling------------------------------------
+
+% Returns all application activations Act of an application App.
+get_activation_of_app(App, Act) :- use_module('../data/activations.problog'), call(activation, App, Act).
+
+
+% Returns the peak consumptions [P|PR] of applications [App|Apps].
+get_apps_peak_consumptions([], _,[]).
+get_apps_peak_consumptions([App|Apps], Abs,[P|PR]) :- Abs=0, app_cons(App,C), max_element_list(C,P),
+ get_apps_peak_consumptions(Apps,Abs,PR).
+
+get_apps_peak_consumptions([App|Apps], Abs,[P|PR]) :- Abs=1, abstract_app_cons(App,C), max_element_list(C,P),
+ get_apps_peak_consumptions(Apps,Abs,PR).
+
+
+% Inserts the application App with the peak energy consumption E into the sorted lists of applications Apps, build with
+% the sorted list of peak energy consumptions [EH|ET].
+insert_app_peak_consumption([],[], App, E, [App], [E]).
+
+insert_app_peak_consumption(Apps, [EH|ET], App, E, [App|Apps], [E|[EH|ET]]) :- E> EH.
+
+insert_app_peak_consumption([AppsH|AppsT], [EH|ET], App, E, [AppsH|AppsR], [EH|RR]) :- E =< EH,
+ insert_app_peak_consumption(AppsT, ET, App, E, AppsR, RR).
+
+
+% Sort the applications Apps after their peak consumptions and return the sorted list AR, either for discrete Abs=0 or
+% abstract values Abs=1.
+sort_apps_after_peak_consumptions(Apps, Abs, AR) :- get_apps_peak_consumptions(Apps, Abs, PR),
+ sort_apps_after_peak_consumptions(Apps, PR, [], [], AR, _).
+
+% Sort the applications [App|Apps] after their peak consumptions [EH|ET] and return the sorted list AR and ER for
+% the sorted list of the peak energy consumption.
+% The lists ART and ERT are thereby the lists build so far.
+sort_apps_after_peak_consumptions([], [], ART, ERT, ART, ERT).
+
+sort_apps_after_peak_consumptions([App|Apps], [EH|ET], [], [], AR, ER) :-
+ insert_app_peak_consumption([], [], App, EH, ARR , ERR),
+ sort_apps_after_peak_consumptions(Apps, ET, ARR, ERR, AR, ER).
+
+sort_apps_after_peak_consumptions([App|Apps], [EH|ET], ART, ERT, AR, ER) :-
+ insert_app_peak_consumption(ART, ERT, App, EH, ARR , ERR),
+ sort_apps_after_peak_consumptions(Apps, ET, ARR, ERR, AR, ER).
+
+
+% TODO define modified functions of the ones below here for weekday dependent scheduling
+% Schedules all possible applications schedules Act of an application App and returns the money saved MoneySaved
+% and the resulting energy balance Balance of these schedules.
+schedule_all_activations_app(App, Act, Prod, Costs, MoneySaved, Balance):- get_activation_of_app(App, Act),
+ saved_money_app(App, Act, Prod, Costs, MoneySaved, Balance).
+
+
+% Returns the maximum amount of saved money of all application schedules off an application App
+% given the energy production Prod.
+max_money_saved_app(App, Prod, Costs, max<MoneySaved>) :- schedule_all_activations_app(App, Act, Prod, Costs, MoneySaved, _).
+
+
+% Returns the schedules S with the most money saved R for an app App given the energy production Prod and returns the
+% resulting energy balance Balance of this schedules.
+best_schedules_app(App, Prod, Costs, S, M, Balance) :- schedule_all_activations_app(App, S, Prod, Costs, MoneySaved, Balance),
+ max_money_saved_app(App, Prod, Costs, M), MoneySaved = M.
+
+
+% Schedules a list of apps [App|Apps] iteratively given the energy production Prod and returns the list of the best app
+% schedules [S|SR] and the money saved M of them.
+schedule_apps_iteratively([], _, _, [], 0).
+
+schedule_apps_iteratively([App|Apps], Prod, Costs, [S|SR], M) :- best_schedules_app(App, Prod, Costs, S, AM, B),
+ schedule_apps_iteratively(Apps, B, SR, SM), M is AM + SM.
+
+
+% TODO maybe sort schedules at the end again with the order of the inserted Apps instead of using AR
+% Schedules all applications Apps one after another in the order of AR and returns the schedules S
+% with the most money saved M.
+schedule_apps(Apps, AR, S, M) :- prod(Prod), costs(Costs), sort_apps_after_peak_consumptions(Apps, 0, AR),
+  schedule_apps_iteratively(AR, Prod, Costs, S, M).
+
+
+
+
+%------------------------------------Day-Time-Dependent Scheduling---------------------------------
+
+% Returns all possible device activations Act of an application App at a weekday Weekday .
+get_activation_of_app_weekday(Weekday, App, Act) :- use_module('../data/activations.problog'),
+ call(activation, Weekday, App, Act).
+
+
+% Schedules all possible applications schedules Act of an application App at a weekday Weekday and returns
+% the money saved MoneySaved and the resulting energy balance Balance of these schedules either for discrete
+% Abs=0 or abstract Abs=1 values.
+schedule_all_activations_app_weekday(Weekday, App, Act, Prod, Costs, Abs, MoneySaved, Balance):- Abs=0,
+ get_activation_of_app_weekday(Weekday, App, Act), saved_money_app(App, Act, Prod, Costs, Abs, MoneySaved, Balance).
+
+schedule_all_activations_app_weekday(Weekday, App, Act, Prod, Costs, Abs, MoneySaved, Balance):- Abs=1,
+ get_abstract_activation_of_app_weekday(Weekday, App, Act),
+ saved_money_app(App, Act, Prod, Costs, Abs, MoneySaved, Balance).
+
+
+% Returns the maximum amount of saved money of all application schedules of an application App at weekday Weekday
+% given the energy production Prod and energy costs Costs either for discrete Abs=0 or abstract Abs=1 values.
+max_money_saved_app_weekday(Weekday, App, Prod, Costs, Abs, max<MoneySaved>) :-
+ schedule_all_activations_app_weekday(Weekday, App, Act, Prod, Costs, Abs, MoneySaved, _).
+
+
+% Returns the schedules S with the most money saved R for an app App at weekday Weekday given the energy production Prod
+% and returns the resulting energy balance Balance of this schedules.
+best_schedules_app_weekday(Weekday, App, Prod, Costs, Abs, S, M, Balance) :-
+ schedule_all_activations_app_weekday(Weekday, App, S, Prod, Costs, Abs, MoneySaved, Balance),
+ max_money_saved_app_weekday(Weekday, App, Prod, Costs, Abs, M), MoneySaved = M.
+
+
+% Schedules a list of apps [App|Apps] iteratively at weekday Weekday, given the energy production Prod
+% and returns the list of the best app schedules [S|SR] and the money saved M of them either for discrete Abs=0 or
+% abstract Abs=1 values.
+schedule_apps_iteratively_weekday(Weekday, [], _, _, _, [], 0).
+
+schedule_apps_iteratively_weekday(Weekday, [App|Apps], Prod, Costs, Abs, [S|SR], M) :-
+ best_schedules_app_weekday(Weekday, App, Prod, Costs, Abs, S, AM, B),
+ schedule_apps_iteratively_weekday(Weekday, Apps, B, Costs, Abs, SR, SM), M is AM + SM.
+
+
+% TODO maybe sort schedules at the end again with the order of the inserted Apps instead of using AR
+% Schedules all applications Apps one after another in the order of AR at weekday Weekday and returns the schedules S
+% with the most money saved M, either for discrete Abs=0 or abstract values Abs=1.
+schedule_apps_weekday(Weekday, Apps, Abs, AR, S, M) :- Abs = 0, prod(Prod), costs(Costs), load(Load),
+ calc_diff(Prod, Load, SurplusProd), schedulable_apps(Weekday, Apps, SApps),
+ sort_apps_after_peak_consumptions(SApps, Abs, AR),
+ schedule_apps_iteratively_weekday(Weekday, AR, SurplusProd, Costs, Abs, S, M).
+
+schedule_apps_weekday(Weekday, Apps, Abs, AR, S, M) :- Abs = 1, abstract_prod(Prod), abstract_costs(Costs),
+ abstract_load(Load), calc_diff(Prod, Load, SurplusProd), sort_apps_after_peak_consumptions(Apps, Abs, AR),
+ schedule_apps_iteratively_weekday(Weekday, AR, SurplusProd, Costs, Abs, S, M).
+
+
+% Schedules all applications Apps one after another in the order of AR at weekday Weekday and returns the schedules as
+% time intervals TF with the most money saved M.
+schedule_apps_weekday_time_intervals(Weekday, Apps, AR, TF, M) :- schedule_apps_weekday(Weekday, Apps, 0, AR, S, M),
+ time_density(TD), compute_scheduled_time_intervals(S, TD, TF),
+ multiply_weekday_app_dependent_predicate(Weekday, Apps, planned_schedule_density, TD, PL, VL),
+ switch_weekday_dependent_app_schedules('scheduling/data/scheduling_results.problog',AR, [Weekday], [S], [VL], _).
+
+
+% Computes time frames [DayTF|DaysTF] for all possible schedules of a week [DayS|DaysS].
+compute_time_intervals_of_possible_schedules_week([], []).
+compute_time_intervals_of_possible_schedules_week([DayS|DaysS], [DayTF|DaysTF]) :-
+ compute_time_intervals_of_possible_schedules_apps(DayS, DayTF),
+ compute_time_intervals_of_possible_schedules_week(DaysS, DaysTF).
+
+
+% Computes time frames [ATF|ATFL] for all possible schedules of applications [AS|ASL].
+compute_time_intervals_of_possible_schedules_apps([], []).
+compute_time_intervals_of_possible_schedules_apps([AS|ASL], [ATF|ATFL]) :- time_density(TD),
+ compute_scheduled_time_intervals(AS, TD, ATF), compute_time_intervals_of_possible_schedules_apps(ASL, ATFL).
+
+
+
+
+%----------------------------------------Time-abstract Scheduling-----------------------------------------------
+
+% Returns the list of all allowed scheduling periods SP of an application App at a weekday Weekday.
+%abstract_scheduling_decision(Weekday, App, SP) :- scheduling_periods_weekday(Weekday, App, SP), len(SP,LSP), LSP > 24,
+% abstract_scheduling().
+
+%abstract_scheduling_decision(Weekday, App, SP) :- scheduling_periods_weekday(Weekday, App, SP), len(SP,LSP), LSP =< 24,
+% abstract_scheduling().
+
+
+% List the consumptions [AppCons|AppsCons] of the apps [Apps|Apps].
+list_app_cons([], []).
+list_app_cons([App|Apps], [AppCons| AppsCons]) :- app_cons(App, AppCons), list_app_cons(Apps, AppsCons).
+
+
+% Compute the parameters of the time abstraction for the apps Apps and saves them in a file.
+compute_abstract_parameters(Apps) :- list_app_cons(Apps,AppCons), time_density(TD), abstract_time_density(ATD),
+ prod(Prod), costs(Costs), load(Load),
+ compute_time_abstraction_parameters(Apps, AppCons, Prod, Costs, Load, TD, ATD,'scheduling/data/abstraction_parameters.problog', _).
+
+
+
+%......................Abstract Scheduling..........................
+
+% Returns all possible device activations Act of an application App at a weekday Weekday.
+get_abstract_activation_of_app_weekday(Weekday, App, Act) :-
+ use_module('../data/abstract_activations.problog'), call(abstract_activation, Weekday, App, Act).
+
+
+% Schedules all applications Apps one after another in the order of AR at weekday Weekday and returns the schedules as
+% time intervals TF with the most money saved M.
+schedule_abstract_apps_weekday_time_intervals(Weekday, Apps, AR, TF, M) :-
+ schedule_apps_weekday(Weekday, Apps, 1, AR, S, M), abstract_time_density(TD),
+ save_scheduling_results(Weekday, Apps, TD, S), compute_scheduled_time_intervals(S, TD, TF).
+
+
+% Save the scheduling results S of an scheduling of apps Apps at weekday Weekday with time density TD.
+save_scheduling_results(Weekday, Apps, TD, S) :-
+ save_weekday_dependent_app_schedules_as_predicates('scheduling/data/scheduling_results.problog', planned_schedule, Apps, [Weekday], [S], _),
+ multiply_weekday_app_dependent_predicate(Weekday, Apps, planned_schedule_density, TD, PL, VL),
+ save_predicates_in_file('scheduling/data/scheduling_results.problog', 1, PL, VL, _).
+
+
+% Multiplies a weekday-app-dependent predicate P with value V for a list of apps [App|Apps] with weekday Weekday and
+% saves the predicates in [P|PL] and their values in [[Weekday,App,V]|VL].
+multiply_weekday_app_dependent_predicate(Weekday, [], P, V, [], []).
+
+multiply_weekday_app_dependent_predicate(Weekday, [App|Apps], P, V, [P|PL], [[Weekday,App,V]|VL]) :-
+ multiply_weekday_app_dependent_predicate(Weekday, Apps, P, V, PL, VL).
+
+
+
+
+%--------------------Fine-grained Scheduling---------------------------------------
+
+% Returns the amount of possible schedules L for an app App at an weekday Weekday.
+number_of_possible_schedules_app_weekday(Weekday, App, L) :- use_module('../data/activations.problog'),
+ findall(Act, activation(Weekday, App, Act), SP), length(SP, L).
+
+% Returns the schedulable apps SApps of a weekday Weekday based on the given apps [App|Apps].
+schedulable_apps(_, [], []).
+
+schedulable_apps(Weekday, [App|Apps], SApps) :- number_of_possible_schedules_app_weekday(Weekday, App, L), L = 0,
+ schedulable_apps(Weekday, Apps, SApps).
+
+schedulable_apps(Weekday, [App|Apps], [App| SApps]) :- number_of_possible_schedules_app_weekday(Weekday, App, L),
+ L > 0, schedulable_apps(Weekday, Apps, SApps).

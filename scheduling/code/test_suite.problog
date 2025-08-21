@@ -1,0 +1,141 @@
+%-------------------------------File Description-------------------------------
+% The test suite for the scheduling.
+%------------------------------------------------------------------------------
+
+:- use_module('scheduling/code/scheduling_main.problog').
+
+
+%---------------------------------------------Tests-------------------------------------------------
+
+%.............Utils Tests........................
+
+%query(mult_lists_elementwise([1,2,4], [3,5,4], R)).
+%query(max_element_list([1000,200,500],M)).
+%query(insert_element_into_sorted_list([200,100,50], 200, R)).
+
+%query(apply_values_to_mask([0,0,1,1,1,0],[100,200,300],R)).
+%query(apply_values_to_mask_multiple_occ([0,1,1,1,0,0,1,1,1],[100,200,300],R)).
+%query(apply_values_to_mask_multiple_occ([0,1,1,0,0,1,1,1,0,1],[100,200,300],R)).
+%query(get_first_and_last_element_of_mask([0,1,1,1,1,0,1], S, E)).
+
+%query(write_to_file('./test.txt','activation')).
+%query(write_to_file('./help.txt', act, [a1,[0,0,1]])).
+%query(get_predicates('./test.txt', activation, X)).
+%query(write_and_get('./test.txt', activation, X)).
+
+
+
+%............Python Function Tests................
+
+%query(get_device_activation_permutations([3,2,1],10,L)).
+
+%query(compute_scheduled_time_intervals([M], TD, TF)) :- compute_scheduling_period_mask_weekday(monday,M),
+% time_density(TD).
+%query(change_schedule_time_density(S, TD, '00:15:00', SN)) :- planned_schedule(monday, a1, S), planned_schedule_density(monday, a1, TD).
+%query(compute_rescheduling_mask([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],'01:00:00', '02:00:00', '06:00:00',ST)).
+
+
+
+%............Utility Computation Tests............
+%query(consumption_of_app(a2,[0, 0, 0, 1],C)).
+%query(consumption_of_app(a1, [0,1,1,1,0,1,1,1], ConsApp)).
+
+%query(energy_balance([a1, a2, a3], [[0, 0, 0, 1], [0, 0, 1, 0], [0, 1, 0, 0]], [400, 800, 300, 100], S1)).
+%query(energy_balance([a1, a2, a3], [[0, 1, 1, 1], [0, 1, 1, 0], [1, 0, 0, 0]], [400, 800, 300, 100], S1)).
+
+%query(saved_money([a1, a2, a3], [[0, 1, 1, 1, 0,1,1,1], [0, 1, 1, 0,0,1,1,0], [1, 0, 0, 0,1,0,0,0]], [400, 800, 300, 100,0,500,600,1000], S1)).
+%query(saved_money([a1, a2, a3], [[0,1,1,1,0,1,1,1], [0,1,1,0,0,1,1,0], [0,1,0,1,0,1,0,1]], [400,800,300,100,50,200,300,500], S1)).
+
+
+
+%...............Basic Scheduling...............
+
+%query(get_activation(Act)).
+%query(get_consecutive_activations([a1,a2,a3],R)).
+%query(get_possible_device_schedules([a1,a2,a3],10,AT)).
+
+%query(schedule(Act, R)).
+%query(schedule_all_activations(Act, R)).
+%query(max_money_saved(Act, R)).
+%query(best_schedule(Act,Score)).
+
+
+
+%.............Iterative Application Scheduling........
+
+%query(save_app_schedules([a1,a2,a3])).
+%query(get_activation_of_app_weekday(wednesday, a3, Act)).
+%query(insert_app_peak_consumption([a1,a3], [240,100], a2, 50, Apps, ER)).
+%query(sort_apps_after_peak_consumptions([a3,a1,a2], 0, AR)).
+%query(possible_schedules_weekday(wednesday, a3, SP)).
+%query(schedulable_apps(wednesday, [a1,a2,a3], SApps)).
+
+%query(schedule_all_activations_app(a1, Act, Prod, MoneySaved, Balance)) :- prod(Prod).
+%query(max_money_saved_app(a1, Prod, M)) :- prod(Prod).
+%query(best_schedules_app(a2, Prod, S, R,_)) :- prod(Prod).
+%query(best_schedules_app(a2, B, S, R,_)) :- prod(Prod), best_schedules_app(a1, Prod, _, _,B).
+%query(schedule_apps_iteratively([a1,a2,a3], Prod, SR, M)) :- prod(Prod).
+
+
+
+
+%...........Day-Time-dependent Scheduling..............
+
+%query(scheduling_periods_weekday(monday, W)).
+%query(compute_scheduling_period_mask_weekday(monday,SPM)).
+
+%query(compute_schedules_of_weekday(monday,[a1], PS, 0, TSApps)) :-time_density(TD), compute_time_points(TD,T),
+% get_consecutive_activations([a1],Act), get_device_activation_permutations(Act,T,PS).
+
+%query(compute_time_intervals_of_possible_schedules_week(TSApps, TF)) :- time_density(TD), compute_time_points(TD,T),
+% get_consecutive_activations([a1,a2,a3],Act), get_device_activation_permutations(Act,T,PS),
+% compute_schedules_of_week([a1,a2,a3], PS, 0, TSApps).
+
+%query(compute_schedules_of_week([a1], PS, 0, SDays)) :-time_density(TD), compute_time_points(TD,T),
+% get_consecutive_activations(Apps,Act), get_device_activation_permutations(Act,T,PS).
+
+%query(schedule_apps_iteratively_weekday(monday, [a1, a2, a3], Prod, Costs, 0, SR, M)) :- prod(Prod), costs(Costs).
+%query(best_schedules_app_weekday(monday, a1, Prod, Costs, 0, S, M, Balance)) :- prod(Prod), costs(Costs).
+%query(schedule_all_activations_app_weekday(monday, a1, S, Prod, Costs, 0, MoneySaved, Balance)) :- prod(Prod), costs(Costs).
+%query(energy_balance([a1], [[0,0,1,1,1]], [100,200,300,200,100], 0, Balance)).
+%query(consumption_of_app(a1, [0,0,1,1,1], ConsApp)).
+
+%-----------------------------------------------System Tests-----------------------------------------------
+
+%.....Computes possible device schedules and schedules the devices iteratively after their peak consumption.....
+
+%query(save_app_schedules([a1,a2,a3])).
+%query(schedule_apps([a1,a2,a3], AR,S,M)).
+
+
+
+%..........Computes Time-frame-dependent possible device schedules and schedules them iteratively...........
+
+%query(save_weekday_dependent_app_schedules([a1,a2,a3])).
+%query(compute_scheduling_period_mask_weekday(monday, '00:15:00', SPM)).
+%query(schedule_apps_weekday(monday, [a1,a2,a3], 0, AR, S, M)).
+%query(schedule_apps_weekday_time_intervals(wednesday, [a1,a2,a3], AR, TF, M)).
+
+
+
+%..........Computes abstract device schedules and schedules the devices iteratively.......................
+
+%query(compute_abstract_parameters([a1,a2,a3])).
+%query(save_weekday_dependent_abstract_app_schedules([a1,a2,a3])).
+%query(schedule_abstract_apps_weekday_time_intervals(wednesday, [a1,a2,a3], AR, TF, M)).
+
+
+
+%...........Computes the fine-grained scheduling..........................................................
+
+%query(planned_schedules_weekday(monday, a1, SP)).
+%query(compute_reschedule_mask(monday, a1, '00:15:00', RM)).
+query(compute_reschedule_application_masks(tuesday,'11:45:58', [a1,a2,a3], '00:15:00', RAMS)).
+
+%query(compute_scheduled_time_intervals([[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]], '00:15:00', TF)).
+%query(compute_reschedule_application_masks(tuesday,'11:45:58', [a1], '00:15:00', RAMS)).
+%query(compute_scheduled_time_intervals([S], '00:15:00', TF)) :- planned_schedule(tuesday, a3, S).
+
+
+%query(save_fine_grained_app_schedules(wednesday, '12:00:00', [a1,a2,a3])).
+%query(schedule_apps_weekday_time_intervals(wednesday, [a1,a2,a3], AR, TF, M)).

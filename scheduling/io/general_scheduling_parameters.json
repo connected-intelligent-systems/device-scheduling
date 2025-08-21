@@ -1,0 +1,11 @@
+{
+  "application_consumptions" : {
+    "a1": [800, 1000, 200],
+    "a2": [1500,500],
+    "a3": [200]
+  },
+  "scheduling_time_density": "00:15:00",
+  "abstract_scheduling_time_density": "01:00:00",
+  "rescheduling_time_window": "06:00:00",
+  "cost_threshold": 55
+}
