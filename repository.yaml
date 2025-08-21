@@ -1,0 +1,4 @@
+# https://developers.home-assistant.io/docs/add-ons/repository#repository-configuration
+name: device-scheduling
+url: 'https://github.com/connected-intelligent-systems/device-scheduling'
+maintainer: Awesome Maintainer <awesome@example.com>
