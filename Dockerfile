@@ -15,4 +15,4 @@ COPY ./run_services.py /app/run_services.py
 
 CMD ["python", "/app/run_services.py"]
 
-EXPOSE 5000
+EXPOSE 5005

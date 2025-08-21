@@ -13,7 +13,7 @@
 %.........Python Functions............
 :- use_module('../python_functions/problog_functions.py').
 :- use_module('../python_functions/problog_functions_time.py').
-:- use_module('..\python_functions\problog_functions_io.py').
+:- use_module('../python_functions/problog_functions_io.py').
 
 
 
