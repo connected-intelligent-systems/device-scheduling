@@ -9,8 +9,8 @@ from problog.program import PrologString
 from scheduling.python_functions.problog_functions_io import write_current_scheduling_parameters_as_predicates
 from scheduling.python_functions.problog_functions_time import get_current_time
 
-abstract_scheduling = PrologString(open("scheduling/interfaces/abstract_scheduling.problog").read())
-fine_grained_scheduling = PrologString(open("scheduling/interfaces/fine_grained_scheduling.problog").read())
+abstract_scheduling = PrologString(open("scheduling/interfaces/abstract_scheduling.pl").read())
+fine_grained_scheduling = PrologString(open("scheduling/interfaces/fine_grained_scheduling.pl").read())
 
 
 def execute_scheduling():
@@ -18,7 +18,7 @@ def execute_scheduling():
     start_time = time.time()
 
     write_current_scheduling_parameters_as_predicates("scheduling/io/current_scheduling_parameters.json",
-                                              'scheduling/data/current_scheduling_parameters.problog')
+                                              'scheduling/data/current_scheduling_parameters.pl')
 
     # decide kind of scheduling
     with open("scheduling/io/current_scheduling_parameters.json", 'r') as file:

@@ -7,7 +7,7 @@ from problog.program import PrologString
 from problog.core import ProbLog
 from problog import get_evaluatable
 
-p = PrologString(open("scheduling/code/test_suite.problog").read())
+p = PrologString(open("scheduling/code/test_suite.pl").read())
 
 
 def dump_results_to_json(file_path, results):

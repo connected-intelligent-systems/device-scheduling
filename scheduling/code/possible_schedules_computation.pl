@@ -31,21 +31,21 @@ get_possible_device_schedules(Apps, T, SP) :- get_consecutive_activations(Apps,A
 
 %----------------------------------Iterative Application Scheduling------------------------------------
 
-% Saves the application schedules of the given applications Apps to "scheduling/data/activations.problog".
+% Saves the application schedules of the given applications Apps to "scheduling/data/activations.pl".
 save_app_schedules(Apps) :- timepoints(T), get_consecutive_activations(Apps,Act),
  get_device_activation_permutations(Act,T,L),
- save_app_schedules_as_predicates('scheduling/data/activations.problog', activation, Apps,L,_).
+ save_app_schedules_as_predicates('scheduling/data/activations.pl', activation, Apps,L,_).
 
 
 
 
 %------------------------------------Day-Time-Dependent Scheduling---------------------------------------
 
-% Saves the day dependent application schedules of the given applications Apps to "scheduling/data/activations.problog".
+% Saves the day dependent application schedules of the given applications Apps to "scheduling/data/activations.pl".
 save_weekday_dependent_app_schedules(Apps) :- time_density(TD), compute_time_points(TD,T),
  get_consecutive_activations(Apps,Act), get_device_activation_permutations(Act,T,PS),
  compute_schedules_of_week(Apps, PS, TD, 0, SDays), weekdays(Weekdays),
- save_weekday_dependent_app_schedules_as_predicates('scheduling/data/activations.problog', activation, Apps, Weekdays, SDays, _).
+ save_weekday_dependent_app_schedules_as_predicates('scheduling/data/activations.pl', activation, Apps, Weekdays, SDays, _).
 
 
 % Returns all possible time period dependent application schedules [ST|STR] of an application App,
@@ -96,16 +96,16 @@ compute_schedules_of_week(Apps, PSApps, [Day|Days], TD, Abs, [SDay|SDays]) :-
  %----------------------------------------Time-abstract Scheduling-----------------------------------------------
 
 % Saves the day dependent abstract application schedules of the given applications Apps to
-% "scheduling_code/data/abstract_activations.problog".
+% "scheduling_code/data/abstract_activations.pl".
 save_weekday_dependent_abstract_app_schedules(Apps) :- abstract_time_density(TD), compute_time_points(TD,T),
  get_consecutive_abstract_activations(Apps,Act), get_device_activation_permutations(Act,T,PS),
  compute_schedules_of_week(Apps, PS, TD, 1, SDays), weekdays(Weekdays),
- save_weekday_dependent_app_schedules_as_predicates('scheduling/data/abstract_activations.problog', abstract_activation, Apps, Weekdays, SDays, _).
+ save_weekday_dependent_app_schedules_as_predicates('scheduling/data/abstract_activations.pl', abstract_activation, Apps, Weekdays, SDays, _).
 
 save_weekday_dependent_abstract_app_schedules(Weekday, Apps) :- abstract_time_density(TD), compute_time_points(TD,T),
  get_consecutive_abstract_activations(Apps,Act), get_device_activation_permutations(Act,T,PS),
  compute_schedules_of_weekday(Weekday, Apps, PS, TD, 1, SDay),
- save_weekday_dependent_app_schedules_as_predicates('scheduling/data/abstract_activations.problog', abstract_activation, Apps, [Weekday], [SDay], _).
+ save_weekday_dependent_app_schedules_as_predicates('scheduling/data/abstract_activations.pl', abstract_activation, Apps, [Weekday], [SDay], _).
 
 
 %----------------------------------------Fine-grained Scheduling---------------------------------------------------
@@ -125,4 +125,4 @@ save_fine_grained_app_schedules(Weekday, CT, Apps):- time_density(TD), compute_t
  get_first_and_last_element_of_masks(RAMS, SPs, EPs), get_consecutive_activations(Apps, Act),
  get_device_activation_permutations_scheduling_period(Act, T, SPs , EPs, PSApps),
  compute_time_period_schedules_of_apps(Apps, PSApps, RAMS, TSApps),
- save_weekday_dependent_app_schedules_as_predicates('scheduling/data/activations.problog', activation, Apps, [Weekday], [TSApps], _).
+ save_weekday_dependent_app_schedules_as_predicates('scheduling/data/activations.pl', activation, Apps, [Weekday], [TSApps], _).

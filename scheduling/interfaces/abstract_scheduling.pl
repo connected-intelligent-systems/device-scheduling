@@ -1,4 +1,4 @@
-:- use_module('scheduling/code/scheduling_main.problog').
+:- use_module('scheduling/code/scheduling_main.pl').
 
 % Executes the abstract scheduling given the current weekday Weekday and the apps to schedule Apps
 % and returns the apps which got scheduled ScheduledApps with the scheduled time frames ScheduledTimeFrames

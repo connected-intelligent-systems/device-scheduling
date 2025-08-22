@@ -9,7 +9,7 @@ from influxdb_client.client.write_api import SYNCHRONOUS
 import pandas as pd
 from problog.extern import problog_export
 
-from scheduling.python_functions.problog_functions_utils import reformat_problog_predicates
+from scheduling.python_functions.pl_functions_utils import reformat_problog_predicates
 
 
 def convert_timedelta_to_timespan_string(time_span: datetime) -> str:

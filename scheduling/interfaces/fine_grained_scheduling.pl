@@ -1,4 +1,4 @@
-:- use_module('scheduling/code/scheduling_main.problog').
+:- use_module('scheduling/code/scheduling_main.pl').
 
 % Executes the fine-grained scheduling given the current weekday Weekday, the current time Time and
 % the apps to schedule Apps and returns the apps which got scheduled ScheduledApps

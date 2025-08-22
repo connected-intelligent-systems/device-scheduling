@@ -151,13 +151,13 @@ def write_schedule_results_to_json(output_file: str,
 
 if __name__ == "__main__":
     # write_scheduling_parameters_as_predicates('../io/current_scheduling_parameters.json',
-    #                                           'test.problog')
+    #                                           'test.pl')
 
     # write_schedulable_time_frames_as_predicates('../io/schedulable_time_frames.json',
-    #                                             'test.problog')
+    #                                             'test.pl')
 
     write_general_scheduling_parameters_as_predicates(
         '../io/general_scheduling_parameters.json',
-        'test.problog'
+        'test.pl'
     )
 

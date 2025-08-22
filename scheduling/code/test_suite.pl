@@ -2,7 +2,7 @@
 % The test suite for the scheduling.
 %------------------------------------------------------------------------------
 
-:- use_module('scheduling/code/scheduling_main.problog').
+:- use_module('scheduling/code/scheduling_main.pl').
 
 
 %---------------------------------------------Tests-------------------------------------------------

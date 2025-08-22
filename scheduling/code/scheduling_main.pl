@@ -4,7 +4,7 @@
 
 %------------------------------------------Imports----------------------------------------------
 
-%.........Problog Libraries...........
+%.........pl Libraries...........
 :- use_module(library(lists)).
 :- use_module(library(aggregate)).
 
@@ -18,22 +18,22 @@
 
 
 %.........Code Files..................
-:- use_module('./utils.problog').
-:- use_module('./mask_operations.problog').
-:- use_module('./possible_schedules_computation.problog').
-:- use_module('./compute_schedule_quality.problog').
+:- use_module('./utils.pl').
+:- use_module('./mask_operations.pl').
+:- use_module('./possible_schedules_computation.pl').
+:- use_module('./compute_schedule_quality.pl').
 
 
 
 
 %.........Data Files.................
-%:- use_module('../data/scheduling_parameters.problog').
-%:- use_module('../data/user_input.problog').
-:- use_module('../data/general_scheduling_parameters.problog').
-:- use_module('../data/current_scheduling_parameters.problog').
-:- use_module('../data/schedulable_time_frames.problog').
-:- use_module('../data/abstraction_parameters.problog').
-:- use_module('../data/scheduling_results.problog').
+%:- use_module('../data/scheduling_parameters.pl').
+%:- use_module('../data/user_input.pl').
+:- use_module('../data/general_scheduling_parameters.pl').
+:- use_module('../data/current_scheduling_parameters.pl').
+:- use_module('../data/schedulable_time_frames.pl').
+:- use_module('../data/abstraction_parameters.pl').
+:- use_module('../data/scheduling_results.pl').
 
 
 
@@ -48,7 +48,7 @@ weekdays([monday, tuesday, wednesday, thursday, friday, saturday, sunday]).
 
 % Returns all application activations Act.
 get_activation(Act) :- al(Apps), timepoints(T), get_possible_device_schedules(Apps,T,SP),
- write_and_get('scheduling_code/data/activations.problog', activation, SP, Act).
+ write_and_get('scheduling_code/data/activations.pl', activation, SP, Act).
 
 
 %schedule(Apps, Act, R):- poss1(Act), al(Apps), prod(Prod), saved_money(Apps, Act, Prod, R).
@@ -76,7 +76,7 @@ best_schedule(S, R) :- schedule_all_activations(S, MoneySaved), max_money_saved(
 %----------------------------------Iterative Application Scheduling------------------------------------
 
 % Returns all application activations Act of an application App.
-get_activation_of_app(App, Act) :- use_module('../data/activations.problog'), call(activation, App, Act).
+get_activation_of_app(App, Act) :- use_module('../data/activations.pl'), call(activation, App, Act).
 
 
 % Returns the peak consumptions [P|PR] of applications [App|Apps].
@@ -155,7 +155,7 @@ schedule_apps(Apps, AR, S, M) :- prod(Prod), costs(Costs), sort_apps_after_peak_
 %------------------------------------Day-Time-Dependent Scheduling---------------------------------
 
 % Returns all possible device activations Act of an application App at a weekday Weekday .
-get_activation_of_app_weekday(Weekday, App, Act) :- use_module('../data/activations.problog'),
+get_activation_of_app_weekday(Weekday, App, Act) :- use_module('../data/activations.pl'),
  call(activation, Weekday, App, Act).
 
 
@@ -211,7 +211,7 @@ schedule_apps_weekday(Weekday, Apps, Abs, AR, S, M) :- Abs = 1, abstract_prod(Pr
 schedule_apps_weekday_time_intervals(Weekday, Apps, AR, TF, M) :- schedule_apps_weekday(Weekday, Apps, 0, AR, S, M),
  time_density(TD), compute_scheduled_time_intervals(S, TD, TF),
  multiply_weekday_app_dependent_predicate(Weekday, Apps, planned_schedule_density, TD, PL, VL),
- switch_weekday_dependent_app_schedules('scheduling/data/scheduling_results.problog',AR, [Weekday], [S], [VL], _).
+ switch_weekday_dependent_app_schedules('scheduling/data/scheduling_results.pl',AR, [Weekday], [S], [VL], _).
 
 
 % Computes time frames [DayTF|DaysTF] for all possible schedules of a week [DayS|DaysS].
@@ -247,7 +247,7 @@ list_app_cons([App|Apps], [AppCons| AppsCons]) :- app_cons(App, AppCons), list_a
 % Compute the parameters of the time abstraction for the apps Apps and saves them in a file.
 compute_abstract_parameters(Apps) :- list_app_cons(Apps,AppCons), time_density(TD), abstract_time_density(ATD),
  prod(Prod), costs(Costs), load(Load),
- compute_time_abstraction_parameters(Apps, AppCons, Prod, Costs, Load, TD, ATD,'scheduling/data/abstraction_parameters.problog', _).
+ compute_time_abstraction_parameters(Apps, AppCons, Prod, Costs, Load, TD, ATD,'scheduling/data/abstraction_parameters.pl', _).
 
 
 
@@ -255,7 +255,7 @@ compute_abstract_parameters(Apps) :- list_app_cons(Apps,AppCons), time_density(T
 
 % Returns all possible device activations Act of an application App at a weekday Weekday.
 get_abstract_activation_of_app_weekday(Weekday, App, Act) :-
- use_module('../data/abstract_activations.problog'), call(abstract_activation, Weekday, App, Act).
+ use_module('../data/abstract_activations.pl'), call(abstract_activation, Weekday, App, Act).
 
 
 % Schedules all applications Apps one after another in the order of AR at weekday Weekday and returns the schedules as
@@ -267,9 +267,9 @@ schedule_abstract_apps_weekday_time_intervals(Weekday, Apps, AR, TF, M) :-
 
 % Save the scheduling results S of an scheduling of apps Apps at weekday Weekday with time density TD.
 save_scheduling_results(Weekday, Apps, TD, S) :-
- save_weekday_dependent_app_schedules_as_predicates('scheduling/data/scheduling_results.problog', planned_schedule, Apps, [Weekday], [S], _),
+ save_weekday_dependent_app_schedules_as_predicates('scheduling/data/scheduling_results.pl', planned_schedule, Apps, [Weekday], [S], _),
  multiply_weekday_app_dependent_predicate(Weekday, Apps, planned_schedule_density, TD, PL, VL),
- save_predicates_in_file('scheduling/data/scheduling_results.problog', 1, PL, VL, _).
+ save_predicates_in_file('scheduling/data/scheduling_results.pl', 1, PL, VL, _).
 
 
 % Multiplies a weekday-app-dependent predicate P with value V for a list of apps [App|Apps] with weekday Weekday and
@@ -285,7 +285,7 @@ multiply_weekday_app_dependent_predicate(Weekday, [App|Apps], P, V, [P|PL], [[We
 %--------------------Fine-grained Scheduling---------------------------------------
 
 % Returns the amount of possible schedules L for an app App at an weekday Weekday.
-number_of_possible_schedules_app_weekday(Weekday, App, L) :- use_module('../data/activations.problog'),
+number_of_possible_schedules_app_weekday(Weekday, App, L) :- use_module('../data/activations.pl'),
  findall(Act, activation(Weekday, App, Act), SP), length(SP, L).
 
 % Returns the schedulable apps SApps of a weekday Weekday based on the given apps [App|Apps].
