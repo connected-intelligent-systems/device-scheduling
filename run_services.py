@@ -1,6 +1,6 @@
 import json
 
-from flask import request, app, Flask
+from flask import request, Flask
 
 from execute_scheduling import execute_scheduling
 from set_general_scheduling_parameters import set_general_scheduling_parameters

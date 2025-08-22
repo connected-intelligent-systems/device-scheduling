@@ -3,11 +3,9 @@ import time
 from datetime import timedelta
 
 from problog import get_evaluatable
-from problog.logic import Term
 from problog.program import PrologString
 
 from scheduling.python_functions.problog_functions_io import write_current_scheduling_parameters_as_predicates
-from scheduling.python_functions.problog_functions_time import get_current_time
 
 abstract_scheduling = PrologString(open("scheduling/interfaces/abstract_scheduling.pl").read())
 fine_grained_scheduling = PrologString(open("scheduling/interfaces/fine_grained_scheduling.pl").read())

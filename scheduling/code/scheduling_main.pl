@@ -211,7 +211,7 @@ schedule_apps_weekday(Weekday, Apps, Abs, AR, S, M) :- Abs = 1, abstract_prod(Pr
 schedule_apps_weekday_time_intervals(Weekday, Apps, AR, TF, M) :- schedule_apps_weekday(Weekday, Apps, 0, AR, S, M),
  time_density(TD), compute_scheduled_time_intervals(S, TD, TF),
  multiply_weekday_app_dependent_predicate(Weekday, Apps, planned_schedule_density, TD, PL, VL),
- switch_weekday_dependent_app_schedules('scheduling/data/scheduling_results.pl',AR, [Weekday], [S], [VL], _).
+ update_weekday_dependent_app_schedules('scheduling/data/scheduling_results.pl',AR, [Weekday], [S], [VL], _).
 
 
 % Computes time frames [DayTF|DaysTF] for all possible schedules of a week [DayS|DaysS].

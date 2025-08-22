@@ -1,3 +1,7 @@
+%-------------------------------File Description-------------------------------
+% This file executes the abstract scheduling.
+%------------------------------------------------------------------------------
+
 :- use_module('scheduling/code/scheduling_main.pl').
 
 % Executes the abstract scheduling given the current weekday Weekday and the apps to schedule Apps
@@ -9,6 +13,6 @@ abstract_scheduling(ScheduledApps, ScheduledTimeFrames, MoneySaved) :-
  compute_abstract_parameters(Apps),
  save_weekday_dependent_abstract_app_schedules(Weekday, Apps),
  schedule_abstract_apps_weekday_time_intervals(Weekday, Apps, ScheduledApps, ScheduledTimeFrames, MoneySaved),
- write_schedule_results_to_json('scheduling/io/scheduling_results.json', Date, ScheduledApps, ScheduledTimeFrames, _).
+ write_scheduling_results_to_json('scheduling/io/scheduling_results.json', Date, ScheduledApps, ScheduledTimeFrames, _).
 
 query(abstract_scheduling(ScheduledApps, ScheduledTimeFrames, MoneySaved)).

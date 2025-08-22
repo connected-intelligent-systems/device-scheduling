@@ -1,10 +1,9 @@
 import json
 import os
 import time
-from datetime import datetime, timedelta
+from datetime import  timedelta
 
 from problog.program import PrologString
-from problog.core import ProbLog
 from problog import get_evaluatable
 
 p = PrologString(open("scheduling/code/test_suite.pl").read())

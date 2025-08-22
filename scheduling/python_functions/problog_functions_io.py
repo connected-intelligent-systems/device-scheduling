@@ -120,10 +120,18 @@ def write_current_scheduling_parameters_as_predicates(scheduling_parameters_json
 
 
 @problog_export('+str', '+str', '+list', '+list', '-int')
-def write_schedule_results_to_json(output_file: str,
-                                   date: str,
-                                   scheduled_appliances: list[str],
-                                   scheduled_times: list[str]):
+def write_scheduling_results_to_json(output_file: str,
+                                     date: str,
+                                     scheduled_appliances: list[str],
+                                     scheduled_times: list[str]):
+    """
+    Writes the scheduling results to the given output file in JSON format.
+    :param output_file: The filepath to the output file.
+    :param date: The date of the scheduling results.
+    :param scheduled_appliances: The scheduled appliances.
+    :param scheduled_times: The schedule time frames of each appliance.
+    :return: 0 if successful.
+    """
     # fill the scheduled applications dictionary for the file
     scheduled_appliances_dict = dict()
     for a in range(len(scheduled_appliances)):
@@ -142,7 +150,7 @@ def write_schedule_results_to_json(output_file: str,
     else:
         mode = 'w'
 
-    with open(file_name, 'w') as file:
+    with open(file_name, mode) as file:
         json.dump(scheduled_appliances_dict, file, indent=4)
         file.close()
 

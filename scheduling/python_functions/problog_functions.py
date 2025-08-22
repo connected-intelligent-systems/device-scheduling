@@ -1,6 +1,5 @@
 import os
 import re
-from typing import overload
 
 from problog.extern import problog_export
 import numpy as np
@@ -106,6 +105,13 @@ def get_activation_tuples(activation_possibilities):
 
 @problog_export('+str', '+str', '+list', '-int')
 def save_list_elements_as_predicates(file, pred_name, prob_list):
+    """
+    Saves all elements of the list prob_list as predicates with predicate name pred_name in the file.
+    :param file: The file_path to the file to save the predicates into.
+    :param pred_name: The predicate name used for the predicates.
+    :param prob_list: The problog list containing the list elements to be saved into predicates.
+    :return: 0 if operation was successful.
+    """
     file_name, pred = reformat_problog_predicates([file, pred_name])
 
     if not os.path.exists(file_name):
@@ -122,6 +128,14 @@ def save_list_elements_as_predicates(file, pred_name, prob_list):
 
 @problog_export('+str', '+str', '+list', '+list', '-int')
 def save_app_schedules_as_predicates(file, pred_name, app_list, schedule_list):
+    """
+    Saves the schedules for a list of applications as predicates in a file.
+    :param file: The file_path to the file to save the predicates into.
+    :param pred_name: The predicate name used for the schedule predicates.
+    :param app_list: The list of applications for which to save the schedules.
+    :param schedule_list: The list of schedules to be saved. Given as list of schedules for each application.
+    :return: 0 if operation was successful.
+    """
     file_name, pred = reformat_problog_predicates([file, pred_name])
 
     if not os.path.exists(file_name):
@@ -140,6 +154,16 @@ def save_app_schedules_as_predicates(file, pred_name, app_list, schedule_list):
 
 @problog_export('+str', '+str', '+list', '+list', '+list', '-int')
 def save_weekday_dependent_app_schedules_as_predicates(file, pred_name, app_list, weekdays, weekday_schedules_list):
+    """
+    Saves the weekday-dependent schedules for a list of applications as predicates in a file.
+    :param file: The file_path to the file to save the predicates into.
+    :param pred_name: The predicate name used for the schedule predicates.
+    :param app_list: The list of applications for which to save the schedules.
+    :param weekdays: The list of weekdays the schedules belong to.
+    :param weekday_schedules_list: The list of weekday-dependent schedules to be saved. Given as list of schedules
+     for each given weekday and for each application.
+    :return: 0 if operation was successful.
+    """
     file_name, pred = reformat_problog_predicates([file, pred_name])
 
     if not os.path.exists(file_name):
@@ -167,11 +191,21 @@ def save_weekday_dependent_app_schedules_as_predicates(file, pred_name, app_list
 
 
 @problog_export('+str', '+list', '+list', '+list', '+list', '-int')
-def switch_weekday_dependent_app_schedules(file,
+def update_weekday_dependent_app_schedules(file,
                                            app_list,
                                            weekdays,
                                            weekday_schedules_list,
                                            weekday_schedule_time_density):
+    """
+    Updates the schedules of already scheduled applications with new schedules.
+    :param file: The file_path to the file in which the schedules are saved.
+    :param app_list: The list of applications for which to update the schedules.
+    :param weekdays: The list of weekdays the schedules belong to.
+    :param weekday_schedules_list: The list of weekday-dependent schedules to be saved. Given as list of schedules
+     for each given weekday and for each application.
+    :param weekday_schedule_time_density: The time densities belonging to the schedules.
+    :return: 0 if operation was successful.
+    """
 
     file_name = reformat_problog_predicates([file])
 

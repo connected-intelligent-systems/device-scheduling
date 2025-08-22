@@ -1,13 +1,10 @@
 import datetime
 import os
-import re
-from operator import index
 
 import pandas as pd
-from clearml.utilities.locks.utils import current_time
 
-from numpy.ma.core import remainder
-from problog.extern import problog_export, problog_export_nondet, problog_export_raw
+
+from problog.extern import problog_export
 
 from scheduling.python_functions.problog_functions_utils import reformat_problog_predicates
 
@@ -101,6 +98,14 @@ def compute_time_points(time_density: datetime.timedelta| str):
 # TODO list of start and end points of one day each (for one device)
 @problog_export('+str', '+str', '+str', '-list')
 def compute_time_mask(start_time, end_time, time_density):
+    """
+    Computes the time mask containing 0s and 1s. The 1s are organized in the time frame reaching from start_time
+     to end_time and indicate, that scheduling in this time frame is allowed.
+    :param start_time: The start time for the allowed interval.
+    :param end_time: The end time for the allowed interval.
+    :param time_density: The time density used for the time mask.
+    :return: The time mask with a positive time frame from start_time to end_time
+    """
     start_time, end_time, time_density = reformat_problog_predicates([start_time, end_time, time_density])
 
     time_day = 24 * 60 ** 2
@@ -536,6 +541,8 @@ def get_current_time():
     date = current_time.date().strftime("%d.%m.%Y")
     time = current_time.time().strftime("%H:%M:%S")
     weekday_number = current_time.weekday()
+
+    weekday = ""
 
     match weekday_number:
         case 0 : weekday = 'monday'
