@@ -280,6 +280,9 @@ def save_predicates_in_file(file, append_to_file, pred_names, predicate_paramete
 
     # write into file
     with open(file_name, mode) as f:
+        if type(predicate_names) == str:
+            predicate_names = [predicate_names]
+
         for i in range(len(predicate_names)):
             predicate = predicate_names[i] + "("
 

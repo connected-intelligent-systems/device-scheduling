@@ -1,7 +1,5 @@
 % Application consumption in Wh between actionable timepoints
-app_cons(a1, [800, 1000, 200]).
-app_cons(a2, [1500, 500]).
-app_cons(a3, [200]).
+app_cons(teststecker, [1000]).
 
 % The time between two actionable timepoints
 time_density('00:15:00').
