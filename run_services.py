@@ -42,5 +42,14 @@ def import_scheduling_parameters():
     set_general_scheduling_parameters()
     return "Successful"
 
+
+@app.route('/health', methods=['GET'])
+def health_check():
+    """Health check endpoint."""
+    return {
+        "status": "healthy",
+        "message": "Scheduling service is running",
+    }
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5005, debug=True)
